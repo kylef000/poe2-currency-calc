@@ -46,6 +46,43 @@
         .btn {
             @apply rounded-xl px-3 py-2 border border-slate-700 hover:bg-slate-800/60;
         }
+
+        /* Uniform number inputs */
+        .input {
+            height: 2.5rem;
+            /* lock height */
+            background-color: #1e293b !important;
+            color: #e2e8f0 !important;
+            border: 1px solid #334155 !important;
+            border-radius: 0.75rem !important;
+            padding: 0 0.75rem !important;
+        }
+
+        /* Remove spinners (Chrome/Edge) */
+        .input::-webkit-outer-spin-button,
+        .input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Remove spinners (Firefox) */
+        .input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Row: [want input] : [have input] */
+        .ratio-row {
+            display: grid;
+            grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .ratio-row .sep {
+            width: 1.25rem;
+            text-align: center;
+            color: #94a3b8;
+        }
     </style>
 </head>
 
@@ -64,45 +101,108 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="rounded-xl border border-slate-700 p-4 bg-slate-900/40">
                     <div class="text-sm font-medium">Exalted ↔ Chaos</div>
-                    <div class="mt-3 space-y-3">
+
+                    <!-- Row 1: Want Chaos : Have Exalted -->
+                    <label class="block text-xs muted mt-3 mb-1">Want Chaos : Have Exalted</label>
+                    <div class="ratio-row">
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.CE.wantC"
+                            @input="applyPair('c','e', ui.pairs.CE.wantC, ui.pairs.CE.haveE)" />
+                        <span class="sep">:</span>
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.CE.haveE"
+                            @input="applyPair('c','e', ui.pairs.CE.wantC, ui.pairs.CE.haveE)" />
+                    </div>
+
+                    <!-- Row 2: Want Exalted : Have Chaos -->
+                    <label class="block text-xs muted mt-3 mb-1">Want Exalted : Have Chaos</label>
+                    <div class="ratio-row">
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.CE.wantE"
+                            @input="applyPair('e','c', ui.pairs.CE.wantE, ui.pairs.CE.haveC)" />
+                        <span class="sep">:</span>
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.CE.haveC"
+                            @input="applyPair('e','c', ui.pairs.CE.wantE, ui.pairs.CE.haveC)" />
+                    </div>
+
+                    <!-- Derived -->
+                    <div class="text-xs muted mt-3">
+                        Derived:
                         <div>
-                            <label class="block text-xs muted mb-1">1 Exalted → Chaos</label>
-                            <input v-model.number="rates.exToChaos" type="number" step="0.01" />
-                        </div>
-                        <div>
-                            <label class="block text-xs muted mb-1">How many Chaos for 1 Exalted</label>
-                            <input v-model.number="rates.chaosPerEx" type="number" step="0.01" />
+                            <ul>
+                                <li>1 Exalted → Chaos = {{ fmt(rates.exToChaos) }} c</li>
+                                <li>Chaos per 1 Exalted = {{ fmt(rates.chaosPerEx) }}</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
+
                 <div class="rounded-xl border border-slate-700 p-4 bg-slate-900/40">
                     <div class="text-sm font-medium">Divine ↔ Exalted</div>
-                    <div class="mt-3 space-y-3">
+
+                    <!-- Row 1: Want Exalted : Have Divine -->
+                    <label class="block text-xs muted mt-3 mb-1">Want Exalted : Have Divine</label>
+                    <div class="ratio-row">
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.DE.wantE"
+                            @input="applyPair('e','d', ui.pairs.DE.wantE, ui.pairs.DE.haveD)" />
+                        <span class="sep">:</span>
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.DE.haveD"
+                            @input="applyPair('e','d', ui.pairs.DE.wantE, ui.pairs.DE.haveD)" />
+                    </div>
+
+                    <!-- Row 2: Want Divine : Have Exalted -->
+                    <label class="block text-xs muted mt-3 mb-1">Want Divine : Have Exalted</label>
+                    <div class="ratio-row">
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.DE.wantD"
+                            @input="applyPair('d','e', ui.pairs.DE.wantD, ui.pairs.DE.haveE)" />
+                        <span class="sep">:</span>
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.DE.haveE"
+                            @input="applyPair('d','e', ui.pairs.DE.wantD, ui.pairs.DE.haveE)" />
+                    </div>
+
+                    <!-- Derived -->
+                    <div class="text-xs muted mt-3">
+                        Derived:
                         <div>
-                            <label class="block text-xs muted mb-1">1 Divine → Exalted <span class="muted">(ex per 1
-                                    div)</span></label>
-                            <input v-model.number="rates.divToEx" type="number" step="0.01" />
-                        </div>
-                        <div>
-                            <label class="block text-xs muted mb-1">How many Exalted for 1 Divine</label>
-                            <input v-model.number="rates.exPerDiv" type="number" step="0.01" />
+                            <ul>
+                                <li>1 Divine → Exalted = {{ fmt(rates.divToEx) }} ex</li>
+                                <li>Exalted per 1 Divine = {{ fmt(rates.exPerDiv) }}</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
                 <div class="rounded-xl border border-slate-700 p-4 bg-slate-900/40">
                     <div class="text-sm font-medium">Divine ↔ Chaos</div>
-                    <div class="mt-3 space-y-3">
+
+                    <!-- Row 1: Want Chaos : Have Divine -->
+                    <label class="block text-xs muted mt-3 mb-1">Want Chaos : Have Divine</label>
+                    <div class="ratio-row">
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.DC.wantC"
+                            @input="applyPair('c','d', ui.pairs.DC.wantC, ui.pairs.DC.haveD)" />
+                        <span class="sep">:</span>
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.DC.haveD"
+                            @input="applyPair('c','d', ui.pairs.DC.wantC, ui.pairs.DC.haveD)" />
+                    </div>
+
+                    <!-- Row 2: Want Divine : Have Chaos -->
+                    <label class="block text-xs muted mt-3 mb-1">Want Divine : Have Chaos</label>
+                    <div class="ratio-row">
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.DC.wantD"
+                            @input="applyPair('d','c', ui.pairs.DC.wantD, ui.pairs.DC.haveC)" />
+                        <span class="sep">:</span>
+                        <input class="input" type="number" step="0.01" v-model.number="ui.pairs.DC.haveC"
+                            @input="applyPair('d','c', ui.pairs.DC.wantD, ui.pairs.DC.haveC)" />
+                    </div>
+
+                    <!-- Derived -->
+                    <div class="text-xs muted mt-3">
+                        Derived:
                         <div>
-                            <label class="block text-xs muted mb-1">1 Divine → Chaos <span class="muted">(c per 1
-                                    div)</span></label>
-                            <input v-model.number="rates.divToChaos" type="number" step="0.01" />
-                        </div>
-                        <div>
-                            <label class="block text-xs muted mb-1">How many Chaos for 1 Divine</label>
-                            <input v-model.number="rates.chaosPerDiv" type="number" step="0.01" />
+                            <ul>
+                                <li>1 Divine → Chaos = {{ fmt(rates.divToChaos) }} c</li>
+                                <li>Chaos per 1 Divine = {{ fmt(rates.chaosPerDiv) }}</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
+
             </div>
             <p class="text-xs muted mt-3">We always pick the <span class="badge px-2 py-0.5 rounded-full">best
                     path</span> (direct or 1‑hop) between currencies.</p>
@@ -124,129 +224,178 @@
                 we pick the method that costs the least in that ranking currency.</p>
         </section>
 
-        <!-- Sell Items -->
+        <!-- SELL ITEMS -->
         <section class="card rounded-2xl p-6 shadow-lg mb-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-semibold">3) Items to Sell</h2>
                 <button @click="addItem" class="btn">+ Add Item</button>
             </div>
+
             <div v-for="(it, idx) in items" :key="it.id"
                 class="rounded-2xl border border-slate-700 p-4 bg-slate-900/40 mb-4">
-                <h3 class="text-lg font-semibold mb-3">{{ it.name || 'Item ' + (idx+1) }}</h3>
+                <h3 class="text-lg font-semibold mb-3">{{ it.name || ('Item ' + (idx+1)) }}</h3>
+
+                <!-- inputs -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div><label class="block text-sm mb-1 muted">Name</label><input v-model="it.name" /></div>
-                    <div><label class="block text-sm mb-1 muted">Quantity</label><input v-model.number="it.qty"
-                            type="number" min="1" step="0.01" /></div>
-                    <div><label class="block text-sm mb-1 muted">Offer (Chaos each)</label><input
-                            v-model.number="it.perChaos" type="number" step="0.01" /></div>
-                    <div><label class="block text-sm mb-1 muted">Offer (Exalted each)</label><input
-                            v-model.number="it.perEx" type="number" step="0.01" /></div>
-                    <div><label class="block text-sm mb-1 muted">Offer (Divine each)</label><input
-                            v-model.number="it.perDiv" type="number" step="0.01" /></div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Name</label>
+                        <input v-model="it.name" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Quantity</label>
+                        <input v-model.number="it.qty" type="number" min="0" step="0.01" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Offer (Chaos each)</label>
+                        <input v-model.number="it.perChaos" type="number" step="0.01" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Offer (Exalted each)</label>
+                        <input v-model.number="it.perEx" type="number" step="0.01" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Offer (Divine each)</label>
+                        <input v-model.number="it.perDiv" type="number" step="0.01" />
+                    </div>
                 </div>
+
+                <!-- result cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div v-for="row in sellRows(idx)" :key="row.key"
                         class="rounded-2xl border border-slate-700 p-4 bg-slate-900/60">
                         <div class="flex items-center justify-between">
                             <div class="text-sm uppercase tracking-wide muted">Method</div>
                             <div class="flex items-center gap-2">
-                                <div class="badge px-2 py-0.5 rounded-full text-xs" v-if="row.best">Best</div>
+                                <div v-if="row.best" class="badge px-2 py-0.5 rounded-full text-xs">Best</div>
                                 <div class="badge px-2 py-0.5 rounded-full text-xs"
-                                    style="background:rgba(148,163,184,0.15);color:#cbd5e1;">Comparing by: {{ rankBy }}
+                                    style="background:rgba(148,163,184,0.15);color:#cbd5e1;">
+                                    Comparing by: {{ rankBy }}
                                 </div>
                             </div>
                         </div>
-                        <h4 class="text-lg font-semibold mt-1">{{ row.label }}</h4>
-                        <div class="mt-3 text-sm grid grid-cols-1 gap-1">
-                            <div class="flex justify-between"><span class="muted">Chaos‑equiv</span><span>{{
-                                    fmt(row.asChaos) }} c</span></div>
-                            <div class="flex justify-between"><span class="muted">Exalt‑equiv</span><span>{{
-                                    fmt(row.asEx) }} ex</span></div>
-                            <div class="flex justify-between"><span class="muted">Divine‑equiv</span><span>{{
-                                    fmt(row.asDiv) }} d</span></div>
-                        </div>
-                        <!-- Add under the totals block in each sell card -->
-                        <div class="mt-3 text-xs">
-                            <span class="muted">Best if you want:</span>
-                            <span class="badge px-2 py-0.5 rounded-full" v-if="row.bestForChaos">Chaos</span>
-                            <span class="badge px-2 py-0.5 rounded-full" v-if="row.bestForEx">Exalted</span>
-                            <span class="badge px-2 py-0.5 rounded-full" v-if="row.bestForDiv">Divine</span>
 
-                            <div class="mt-2 space-y-1" v-if="row.bestForChaos || row.bestForEx || row.bestForDiv">
-                                <div v-if="row.bestForChaos"><span class="muted">Chaos:</span> {{
-                                    pathString(row.chaosPath || [row.key]) }}</div>
-                                <div v-if="row.bestForEx"><span class="muted">Exalted:</span> {{ pathString(row.exPath
-                                    || [row.key]) }}</div>
-                                <div v-if="row.bestForDiv"><span class="muted">Divine:</span> {{ pathString(row.divPath
-                                    || [row.key]) }}</div>
+                        <h4 class="text-lg font-semibold mt-1">{{ row.label }}</h4>
+
+                        <!-- equivalents -->
+                        <div class="mt-3 text-sm grid grid-cols-1 gap-1">
+                            <div class="flex justify-between">
+                                <span class="muted">Chaos-equiv</span>
+                                <span>{{ fmt(row.asChaos) }} c</span>
                             </div>
+                            <div class="flex justify-between">
+                                <span class="muted">Exalt-equiv</span>
+                                <span>{{ fmt(row.asEx) }} ex</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="muted">Divine-equiv</span>
+                                <span>{{ fmt(row.asDiv) }} d</span>
+                            </div>
+                        </div>
+
+                        <!-- ranked outcomes -->
+                        <div class="mt-3 text-xs">
+                            <div class="muted mb-1">Ranked outcomes:</div>
+                            <ol class="list-decimal pl-5 space-y-0.5">
+                                <li v-for="(r,i) in row.rank" :key="r.code">
+                                    <span class="font-medium">{{ r.label }}</span> —
+                                    {{ fmt(r.val) }} {{ r.unit }}
+                                    <span class="muted">via</span> {{ pathString(r.path) }}
+                                    <span v-if="i===0" class="ml-1 inline-block px-1.5 py-0.5 rounded-full text-[10px]"
+                                        style="background:rgba(8,193,119,.15);color:#08c177;">Best</span>
+                                </li>
+                            </ol>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Buy Items -->
+        <!-- BUY ITEMS -->
         <section class="card rounded-2xl p-6 shadow-lg mb-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-semibold">4) Items to Buy</h2>
                 <button @click="addBuy" class="btn">+ Add Buy</button>
             </div>
+
             <div v-for="(b, idx) in buys" :key="b.id"
                 class="rounded-2xl border border-slate-700 p-4 bg-slate-900/40 mb-4">
-                <h3 class="text-lg font-semibold mb-3">{{ b.name || 'Buy ' + (idx+1) }}</h3>
+                <h3 class="text-lg font-semibold mb-3">{{ b.name || ('Buy ' + (idx+1)) }}</h3>
+
+                <!-- inputs -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div><label class="block text-sm mb-1 muted">Name</label><input v-model="b.name" /></div>
-                    <div><label class="block text-sm mb-1 muted">Quantity</label><input v-model.number="b.qty"
-                            type="number" min="1" step="0.01" /></div>
-                    <div><label class="block text-sm mb-1 muted">Cost (Chaos total for qty)</label><input
-                            v-model.number="b.costChaos" type="number" step="0.01" /></div>
-                    <div><label class="block text-sm mb-1 muted">Cost (Exalted total for qty)</label><input
-                            v-model.number="b.costEx" type="number" step="0.01" /></div>
-                    <div><label class="block text-sm mb-1 muted">Cost (Divine total for qty)</label><input
-                            v-model.number="b.costDiv" type="number" step="0.01" /></div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Name</label>
+                        <input v-model="b.name" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Quantity</label>
+                        <input v-model.number="b.qty" type="number" min="0" step="0.01" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Cost (Chaos total for qty)</label>
+                        <input v-model.number="b.costChaos" type="number" step="0.01" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Cost (Exalted total for qty)</label>
+                        <input v-model.number="b.costEx" type="number" step="0.01" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1 muted">Cost (Divine total for qty)</label>
+                        <input v-model.number="b.costDiv" type="number" step="0.01" />
+                    </div>
                 </div>
+
+                <!-- result cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div v-for="row in buyRows(idx)" :key="row.key"
                         class="rounded-2xl border border-slate-700 p-4 bg-slate-900/60">
                         <div class="flex items-center justify-between">
                             <div class="text-sm uppercase tracking-wide muted">Pay with</div>
                             <div class="flex items-center gap-2">
-                                <div class="badge px-2 py-0.5 rounded-full text-xs" v-if="row.best">Best</div>
+                                <div v-if="row.best" class="badge px-2 py-0.5 rounded-full text-xs">Best</div>
                                 <div class="badge px-2 py-0.5 rounded-full text-xs"
-                                    style="background:rgba(148,163,184,0.15);color:#cbd5e1;">Comparing by: {{ rankBy }}
+                                    style="background:rgba(148,163,184,0.15);color:#cbd5e1;">
+                                    Comparing by: {{ rankBy }}
                                 </div>
                             </div>
                         </div>
-                        <h4 class="text-lg font-semibold mt-1">{{ row.label }}</h4>
-                        <div class="mt-3 text-sm grid grid-cols-1 gap-1">
-                            <div class="flex justify-between"><span class="muted">Chaos‑equiv cost</span><span>{{
-                                    fmt(row.asChaos) }} c</span></div>
-                            <div class="flex justify-between"><span class="muted">Exalt‑equiv cost</span><span>{{
-                                    fmt(row.asEx) }} ex</span></div>
-                            <div class="flex justify-between"><span class="muted">Divine‑equiv cost</span><span>{{
-                                    fmt(row.asDiv) }} d</span></div>
-                        </div>
-                        <!-- Add under the cost equivalents in each buy card -->
-                        <div class="mt-3 text-xs">
-                            <span class="muted">Cheapest if you care about:</span>
-                            <span class="badge px-2 py-0.5 rounded-full" v-if="row.bestForChaos">Chaos</span>
-                            <span class="badge px-2 py-0.5 rounded-full" v-if="row.bestForEx">Exalted</span>
-                            <span class="badge px-2 py-0.5 rounded-full" v-if="row.bestForDiv">Divine</span>
 
-                            <div class="mt-2 space-y-1" v-if="row.bestForChaos || row.bestForEx || row.bestForDiv">
-                                <div v-if="row.bestForChaos"><span class="muted">Chaos:</span> {{
-                                    pathString(row.chaosPath || [row.key]) }}</div>
-                                <div v-if="row.bestForEx"><span class="muted">Exalted:</span> {{ pathString(row.exPath
-                                    || [row.key]) }}</div>
-                                <div v-if="row.bestForDiv"><span class="muted">Divine:</span> {{ pathString(row.divPath
-                                    || [row.key]) }}</div>
+                        <h4 class="text-lg font-semibold mt-1">{{ row.label }}</h4>
+
+                        <!-- costs -->
+                        <div class="mt-3 text-sm grid grid-cols-1 gap-1">
+                            <div class="flex justify-between">
+                                <span class="muted">Chaos-equiv cost</span>
+                                <span>{{ fmt(row.asChaos) }} c</span>
                             </div>
+                            <div class="flex justify-between">
+                                <span class="muted">Exalt-equiv cost</span>
+                                <span>{{ fmt(row.asEx) }} ex</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="muted">Divine-equiv cost</span>
+                                <span>{{ fmt(row.asDiv) }} d</span>
+                            </div>
+                        </div>
+
+                        <!-- ranked costs (cheapest first) -->
+                        <div class="mt-3 text-xs">
+                            <div class="muted mb-1">Ranked (cheapest → priciest):</div>
+                            <ol class="list-decimal pl-5 space-y-0.5">
+                                <li v-for="(r,i) in row.rank" :key="r.code">
+                                    <span class="font-medium">{{ r.label }}</span> —
+                                    {{ fmt(r.val) }} {{ r.unit }}
+                                    <span class="muted">via</span> {{ pathString(r.path) }}
+                                    <span v-if="i===0" class="ml-1 inline-block px-1.5 py-0.5 rounded-full text-[10px]"
+                                        style="background:rgba(8,193,119,.15);color:#08c177;">Cheapest</span>
+                                </li>
+                            </ol>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
     </div>
 
     <script>
@@ -259,20 +408,31 @@
             data() {
                 return {
                     rates: { exToChaos: 1.25, chaosPerEx: 1.28, divToEx: 49, exPerDiv: 47, divToChaos: 58, chaosPerDiv: 60 },
-                    items: [mkItem()], buys: [mkBuy()], rankBy: 'chaos'
+                    items: [mkItem()], buys: [mkBuy()], rankBy: 'chaos',
+                    inputMode: 'mr',  // 'mr' = market ratio, 'direct' = direct numbers,
+                    ui: {
+                        // initial values just examples; user can type over them
+                        pairs: {
+                            // Chaos ↔ Exalted
+                            CE: { wantC: 1, haveE: 1.35, wantE: 1, haveC: 1.28 },
+
+                            // Divine ↔ Exalted
+                            DE: { wantE: 67, haveD: 1, wantD: 1, haveE: 66.67 },
+
+                            // Divine ↔ Chaos
+                            DC: { wantC: 48.67, haveD: 1, wantD: 1, haveC: 49 }
+                        }
+                    }
                 }
             },
             methods: {
+                // ---------- Utilities ----------
                 fmt(n) {
                     if (!isFinite(n)) return '—';
                     const a = Math.abs(n);
                     const dp = a >= 10 ? 2 : a >= 1 ? 3 : 4;
                     return Number(n.toFixed(dp));
                 },
-
-                addItem() { this.items.push(mkItem()); },
-                addBuy() { this.buys.push(mkBuy()); },
-
                 labelFor(code) {
                     return code === 'c' ? 'Chaos' : code === 'e' ? 'Exalted' : code === 'd' ? 'Divine' : code;
                 },
@@ -281,17 +441,89 @@
                     return path.map(this.labelFor).join(' → ');
                 },
 
+                addItem() { this.items.push({ id: Math.random().toString(36).slice(2), name: '', qty: 1, perChaos: 0, perEx: 0, perDiv: 0 }); },
+                addBuy() { this.buys.push({ id: Math.random().toString(36).slice(2), name: '', qty: 1, costChaos: 0, costEx: 0, costDiv: 0 }); },
+                unitFor(code) { return code === 'c' ? 'c' : code === 'e' ? 'ex' : 'd'; },
+                rankList(entries, { order = 'desc' } = {}) {
+                    // entries: [{code:'c', label:'Chaos', val:..., path:[...]}, ...]
+                    const cmp = order === 'asc'
+                        ? (a, b) => (a.val - b.val)
+                        : (a, b) => (b.val - a.val);
+                    return entries
+                        .filter(e => isFinite(e.val))
+                        .sort(cmp);
+                },
 
+                /**
+                 * Pair-style setter for rates coming from:
+                 *   "Want <W> : Have <H>  [wantQty] : [haveQty]"
+                 * We set rate(H->W) = wantQty / haveQty and keep all your existing rate keys in sync.
+                 * Currency codes: 'c' chaos, 'e' exalted, 'd' divine
+                 */
+                // Independent-rate setter from "Want : Have" rows.
+                // want, have ∈ {'c','e','d'}; wantQty, haveQty are the two input boxes.
+                // We ONLY set the canonical directional field that corresponds to THIS row.
+                // No inverse writing, no UI syncing.
+                applyPair(want, have, wantQty, haveQty) {
+                    const W = String(want), H = String(have);
+                    const wn = Number(wantQty), hn = Number(haveQty);
+                    if (!W || !H || W === H) return;
+                    if (!isFinite(wn) || !isFinite(hn) || wn <= 0 || hn <= 0) return;
+
+                    // Row rate as written in UI: wn of WANT per hn of HAVE
+                    const rowRate = wn / hn;
+
+                    // Exalted ↔ Chaos
+                    if (H === 'e' && W === 'c') {
+                        // Want Chaos : Have Exalted → "chaos per exalt"
+                        this.rates.exToChaos = rowRate;
+                        return;
+                    }
+                    if (H === 'c' && W === 'e') {
+                        // Want Exalted : Have Chaos → the UI gives "ex per chaos"
+                        // Our canonical field here is "Chaos per 1 Exalted" → invert the row
+                        this.rates.chaosPerEx = 1 / rowRate;
+                        return;
+                    }
+
+                    // Divine ↔ Exalted
+                    if (H === 'd' && W === 'e') {
+                        // Want Exalted : Have Divine → "ex per div" (direct match)
+                        this.rates.divToEx = rowRate;
+                        return;
+                    }
+                    if (H === 'e' && W === 'd') {
+                        // Want Divine : Have Exalted → "div per ex"
+                        // Canonical is "Exalted per 1 Divine" → invert
+                        this.rates.exPerDiv = 1 / rowRate;
+                        return;
+                    }
+
+                    // Divine ↔ Chaos
+                    if (H === 'd' && W === 'c') {
+                        // Want Chaos : Have Divine → "chaos per div" (direct match)
+                        this.rates.divToChaos = rowRate;
+                        return;
+                    }
+                    if (H === 'c' && W === 'd') {
+                        // Want Divine : Have Chaos → "div per chaos"
+                        // Canonical is "Chaos per 1 Divine" → invert
+                        this.rates.chaosPerDiv = 1 / rowRate;
+                        return;
+                    }
+                },
+
+                // ---------- Conversion engine ----------
                 rateDirect(src, dst) {
                     if (src === dst) return 1;
                     const r = this.rates;
                     switch (`${src}->${dst}`) {
-                        case 'e->c': return r.exToChaos;
-                        case 'c->e': return 1 / (r.chaosPerEx || NaN);
-                        case 'd->e': return r.divToEx;
-                        case 'e->d': return 1 / (r.exPerDiv || NaN);
-                        case 'd->c': return r.divToChaos;
-                        case 'c->d': return 1 / (r.chaosPerDiv || NaN);
+                        case 'e->c': return r.exToChaos;                 // chaos per exalt
+                        case 'c->e': return 1 / (r.chaosPerEx || NaN);   // ex per chaos
+                        case 'd->e': return r.divToEx;                   // ex per divine
+                        case 'e->d': return 1 / (r.exPerDiv || NaN);     // div per exalt
+                        case 'd->c': return r.divToChaos;                // chaos per divine
+                        case 'c->d': return 1 / (r.chaosPerDiv || NaN);  // div per chaos
                         default: return NaN;
                     }
                 },
@@ -301,7 +533,7 @@
                     const cur = ['c', 'e', 'd'];
                     let best = { rate: NaN, path: [] };
 
-                    const pushIfBetter = (rate, path) => {
+                    const consider = (rate, path) => {
                         if (isFinite(rate) && rate > 0 && (!isFinite(best.rate) || rate > best.rate)) {
                             best = { rate, path };
                         }
@@ -309,16 +541,14 @@
 
                     // direct
                     const dir = this.rateDirect(src, dst);
-                    pushIfBetter(dir, [src, dst]);
+                    consider(dir, [src, dst]);
 
-                    // one intermediate
+                    // one intermediate (covers all without cycles in 3-currency world)
                     for (const mid of cur) {
                         if (mid === src || mid === dst) continue;
                         const r1 = this.rateDirect(src, mid);
                         const r2 = this.rateDirect(mid, dst);
-                        if (isFinite(r1) && r1 > 0 && isFinite(r2) && r2 > 0) {
-                            pushIfBetter(r1 * r2, [src, mid, dst]);
-                        }
+                        consider(r1 * r2, [src, mid, dst]);
                     }
                     return best;
                 },
@@ -327,18 +557,14 @@
                     const { rate, path } = this.bestRateWithPath(src, dst);
                     return { amount: isFinite(rate) ? amount * rate : NaN, path };
                 },
-
                 convert(amount, src, dst) {
                     return this.convertWithPath(amount, src, dst).amount;
                 },
 
+                // ---------- Rows for SELL ----------
                 sellRows(idx) {
-                    const it = this.items[idx];
-                    const q = Number(it.qty) || 0;
-
-                    const chaos = q * (+it.perChaos || 0);
-                    const ex = q * (+it.perEx || 0);
-                    const div = q * (+it.perDiv || 0);
+                    const it = this.items[idx], q = Number(it.qty) || 0;
+                    const chaos = q * (+it.perChaos || 0), ex = q * (+it.perEx || 0), div = q * (+it.perDiv || 0);
 
                     const c2e = this.convertWithPath(chaos, 'c', 'e');
                     const c2d = this.convertWithPath(chaos, 'c', 'd');
@@ -349,32 +575,26 @@
 
                     const rows = [
                         {
-                            key: 'c',
-                            label: `Sell for Chaos (${it.perChaos || 0} c each)`,
-                            asChaos: chaos,
-                            chaosPath: ['c'],                  // direct (no hop)
+                            key: 'c', label: `Sell for Chaos (${it.perChaos || 0} c each)`,
+                            asChaos: chaos, chaosPath: ['c'],
                             asEx: c2e.amount, exPath: c2e.path,
-                            asDiv: c2d.amount, divPath: c2d.path,
+                            asDiv: c2d.amount, divPath: c2d.path
                         },
                         {
-                            key: 'e',
-                            label: `Sell for Exalted (${it.perEx || 0} ex each)`,
+                            key: 'e', label: `Sell for Exalted (${it.perEx || 0} ex each)`,
                             asChaos: e2c.amount, chaosPath: e2c.path,
-                            asEx: ex,
-                            exPath: ['e'],                     // direct (no hop)
-                            asDiv: e2d.amount, divPath: e2d.path,
+                            asEx: ex, exPath: ['e'],
+                            asDiv: e2d.amount, divPath: e2d.path
                         },
                         {
-                            key: 'd',
-                            label: `Sell for Divines (${it.perDiv || 0} d each)`,
+                            key: 'd', label: `Sell for Divines (${it.perDiv || 0} d each)`,
                             asChaos: d2c.amount, chaosPath: d2c.path,
                             asEx: d2e.amount, exPath: d2e.path,
-                            asDiv: div,
-                            divPath: ['d'],                    // direct (no hop)
+                            asDiv: div, divPath: ['d']
                         },
                     ];
 
-                    // Best by user-selected ranking currency
+                    // Best pill by user-selected ranking currency
                     let bestIdx = 0, bestVal = -Infinity;
                     rows.forEach((r, i) => {
                         const v = this.rankBy === 'chaos' ? r.asChaos : this.rankBy === 'exalt' ? r.asEx : r.asDiv;
@@ -382,20 +602,22 @@
                     });
                     rows[bestIdx].best = true;
 
-                    // Best per target currency
-                    const maxBy = (field) => rows.reduce((bi, r, i) => (r[field] > rows[bi][field] ? i : bi), 0);
-                    rows[maxBy('asChaos')].bestForChaos = true;
-                    rows[maxBy('asEx')].bestForEx = true;
-                    rows[maxBy('asDiv')].bestForDiv = true;
+                    // Per-row ranked outcomes (desc by amount) + path annotation
+                    rows.forEach(r => {
+                        r.rank = this.rankList([
+                            { code: 'c', label: 'Chaos', val: r.asChaos, unit: 'c', path: r.chaosPath || ['c'] },
+                            { code: 'e', label: 'Exalted', val: r.asEx, unit: 'ex', path: r.exPath || ['e'] },
+                            { code: 'd', label: 'Divine', val: r.asDiv, unit: 'd', path: r.divPath || ['d'] },
+                        ], { order: 'desc' });
+                    });
 
                     return rows;
                 },
 
+                // ---------- Rows for BUY ----------
                 buyRows(idx) {
                     const b = this.buys[idx];
-                    const chaos = +b.costChaos || 0;
-                    const ex = +b.costEx || 0;
-                    const div = +b.costDiv || 0;
+                    const chaos = +b.costChaos || 0, ex = +b.costEx || 0, div = +b.costDiv || 0;
 
                     const c2e = this.convertWithPath(chaos, 'c', 'e');
                     const c2d = this.convertWithPath(chaos, 'c', 'd');
@@ -406,33 +628,26 @@
 
                     const rows = [
                         {
-                            key: 'c',
-                            label: `Pay ${this.fmt(chaos)} chaos`,
-                            asChaos: chaos,
-                            chaosPath: ['c'],                  // direct (no hop)
+                            key: 'c', label: `Pay ${this.fmt(chaos)} chaos`,
+                            asChaos: chaos, chaosPath: ['c'],
                             asEx: c2e.amount, exPath: c2e.path,
-                            asDiv: c2d.amount, divPath: c2d.path,
+                            asDiv: c2d.amount, divPath: c2d.path
                         },
                         {
-                            key: 'e',
-                            label: `Pay ${this.fmt(ex)} exalted`,
+                            key: 'e', label: `Pay ${this.fmt(ex)} exalted`,
                             asChaos: e2c.amount, chaosPath: e2c.path,
-                            asEx: ex,
-                            exPath: ['e'],                     // direct (no hop)
-                            asDiv: e2d.amount, divPath: e2d.path,
+                            asEx: ex, exPath: ['e'],
+                            asDiv: e2d.amount, divPath: e2d.path
                         },
                         {
-                            key: 'd',
-                            label: `Pay ${this.fmt(div)} divines`,
+                            key: 'd', label: `Pay ${this.fmt(div)} divines`,
                             asChaos: d2c.amount, chaosPath: d2c.path,
                             asEx: d2e.amount, exPath: d2e.path,
-                            asDiv: div,
-                            divPath: ['d'],                    // direct (no hop)
+                            asDiv: div, divPath: ['d']
                         },
                     ];
 
-
-                    // Best by user-selected ranking currency (minimize cost)
+                    // Cheapest pill by selected ranking currency
                     let bestIdx = 0, bestVal = Infinity;
                     rows.forEach((r, i) => {
                         const v = this.rankBy === 'chaos' ? r.asChaos : this.rankBy === 'exalt' ? r.asEx : r.asDiv;
@@ -440,16 +655,19 @@
                     });
                     rows[bestIdx].best = true;
 
-                    // Cheapest per target currency
-                    const minBy = (field) => rows.reduce((bi, r, i) => (r[field] < rows[bi][field] ? i : bi), 0);
-                    rows[minBy('asChaos')].bestForChaos = true;
-                    rows[minBy('asEx')].bestForEx = true;
-                    rows[minBy('asDiv')].bestForDiv = true;
+                    // Per-row ranked costs (asc = cheapest first) + path
+                    rows.forEach(r => {
+                        r.rank = this.rankList([
+                            { code: 'c', label: 'Chaos', val: r.asChaos, unit: 'c', path: r.chaosPath || ['c'] },
+                            { code: 'e', label: 'Exalted', val: r.asEx, unit: 'ex', path: r.exPath || ['e'] },
+                            { code: 'd', label: 'Divine', val: r.asDiv, unit: 'd', path: r.divPath || ['d'] },
+                        ], { order: 'asc' });
+                    });
 
                     return rows;
-                }
-            }
+                },
 
+            }
         }).mount('#app')
     </script>
 </body>
